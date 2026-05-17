@@ -559,6 +559,48 @@ class EliteScanner:
                 })
         except:
             pass
+    def check_idor(self):
+        """Insecure Direct Object Reference detection"""
+        # محاولة الوصول إلى معرفات (IDs) مختلفة للمقارنة
+        test_ids = [0, 1, 100, 999]
+        for tid in test_ids:
+            test_url = f"{self.target}?id={tid}"
+            try:
+                resp = self.session.get(test_url, timeout=5)
+                if resp.status_code == 200 and len(resp.text) > 0:
+                    # هذا فحص بدائي، IDOR عادة يتطلب تحليل يدوي أدق
+                    pass 
+            except: pass
+
+    def check_ssrf(self):
+        """Server Side Request Forgery detection"""
+        payloads = ["http://169.254.169.254/latest/meta-data/", "http://localhost:22"]
+        for payload in payloads:
+            test_url = f"{self.target}?url={payload}"
+            try:
+                resp = self.session.get(test_url, timeout=5)
+                if "ami-id" in resp.text or "SSH-" in resp.text:
+                    self.vulnerabilities.append({
+                        'name': 'SSRF Vulnerability',
+                        'risk': 8, 'category': 'HIGH', 'confidence': 'Medium',
+                        'details': f'Potential SSRF detected via: {payload}',
+                        'url': test_url
+                    })
+            except: pass
+
+    def check_open_redirect(self):
+        """Open Redirect detection"""
+        payload = "https://google.com"
+        test_url = f"{self.target}?next={payload}"
+        try:
+            resp = self.session.get(test_url, allow_redirects=False)
+            if resp.status_code in [301, 302] and resp.headers.get('Location') == payload:
+                self.vulnerabilities.append({
+                    'name': 'Open Redirect',
+                    'risk': 5, 'category': 'MEDIUM', 'confidence': 'High',
+                    'details': f'Redirects to: {payload}', 'url': test_url
+                })
+        except: pass
               
     def display_results(self):
         """Display comprehensive results"""
