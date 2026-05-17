@@ -199,7 +199,7 @@ class EliteScanner:
         # Additional 40+ vulnerability types
         self.EXTENDED_VULNS = [
             {"name": "DNS Rebinding", "risk": 7},
-            {"name": "Web Cache Deception", "risk": or},
+            {"name": "Web Cache Deception", "risk": 7},
             {"name": "OAuth Misconfiguration", "risk": 7},
             {"name": "CORS Misconfiguration", "risk": 6},
             {"name": "Subdomain Takeover", "risk": 8},
@@ -528,7 +528,21 @@ class EliteScanner:
                 pass
 
     # Additional check methods would follow similar patterns...
-
+   def check_lfi_rfi(self):
+        """Local/Remote File Inclusion detection"""
+        payloads = ["/etc/passwd", "C:\\Windows\\win.ini", "http://evtscan.com/test.txt"]
+        for payload in payloads:
+            test_url = f"{self.target}?file={payload}"
+            try:
+                resp = self.session.get(test_url, timeout=5)
+                if any(indicator in resp.text for indicator in ["root:x:", "[extensions]", "test_rfi_successful"]):
+                    self.vulnerabilities.append({
+                        'name': 'LFI/RFI Vulnerability',
+                        'risk': 9, 'category': 'HIGH', 'confidence': 'High',
+                        'details': f'File inclusion detected with: {payload}', 'url': test_url
+                    })
+            except: pass
+              
     def display_results(self):
         """Display comprehensive results"""
         print(f"\n{Fore.CYAN}{'='*80}")
