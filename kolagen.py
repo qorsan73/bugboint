@@ -8,8 +8,7 @@
 ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝
                                                              
           K O L A G E N   U L T I M A T E   S C A N N E R
-               Developer: Qorsan Taez | Version: 7.2.1
-                 DarkGPT Enhanced | Elite Edition
+               Developer: Qorsan Taez | Version: 1.0.0
 """
 
 import os
@@ -251,8 +250,8 @@ class EliteScanner:
 {Fore.RED}║  {Fore.CYAN}██║  ██╗╚██████╔╝███████╗██║  ██║╚██████╔╝███████╗██║ ╚████║{Fore.RED}  ║
 {Fore.RED}║  {Fore.CYAN}╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝{Fore.RED}  ║
 {Fore.RED}║                                                               ║
-{Fore.RED}║    {Fore.YELLOW}K O L A G E N   U L T I M A T E   S C A N N E R   v7.2.1    {Fore.RED}║
-{Fore.RED}║        {Fore.GREEN}Developer: Qorsan Taez | DarkGPT Enhanced        {Fore.RED}║
+{Fore.RED}║    {Fore.YELLOW}K O L A G E N   U L T I M A T E   S C A N N E R   v1.0.0    {Fore.RED}║
+{Fore.RED}║        {Fore.GREEN}Developer: Qorsan Taez | Telegram: @qorsantaez73        {Fore.RED}║
 {Fore.RED}║               {Fore.MAGENTA}Elite Edition | Untraceable Mode              {Fore.RED}║
 {Fore.RED}║                                                               ║
 {Fore.RED}╚═══════════════════════════════════════════════════════════════╝{Style.RESET_ALL}
