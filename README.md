@@ -2,9 +2,11 @@
 # RUN : 
 
 * pip install requests beautifulsoup4 colorama dnspython urllib3
-* # Basic scan
-python3 advanced_scanner.py https://example.com
+# Basic scan
 
+```
+python3 advanced_scanner.py https://example.com
+```
 # Deep scan with more threads
 python3 advanced_scanner.py https://example.com -d 5 -t 50
 
