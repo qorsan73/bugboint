@@ -530,9 +530,9 @@ class EliteScanner:
     # Additional check methods would follow similar patterns...
    def check_lfi_rfi(self):
         """Local/Remote File Inclusion detection"""
-        payloads = ["/etc/passwd", "C:\\Windows\\win.ini", "http://evtscan.com/test.txt"]
-        for payload in payloads:
-            test_url = f"{self.target}?file={payload}"
+       payloads = ["/etc/passwd", "C:\\Windows\\win.ini", "http://evtscan.com/test.txt"]
+       for payload in payloads:
+           test_url = f"{self.target}?file={payload}"
             try:
                 resp = self.session.get(test_url, timeout=5)
                 if any(indicator in resp.text for indicator in ["root:x:", "[extensions]", "test_rfi_successful"]):
