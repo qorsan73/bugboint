@@ -559,7 +559,7 @@ class EliteScanner:
                 })
         except:
             pass
-          def check_csrf(self):
+    def check_csrf(self):
         """CSRF detection by checking for anti-CSRF tokens"""
         try:
             resp = self.session.get(self.target)
