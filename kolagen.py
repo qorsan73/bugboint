@@ -559,6 +559,36 @@ class EliteScanner:
                 })
         except:
             pass
+          def check_csrf(self):
+        """CSRF detection by checking for anti-CSRF tokens"""
+        try:
+            resp = self.session.get(self.target)
+            # البحث عن كلمات تدل على وجود توكن حماية في كود الصفحة
+            tokens = ['csrf', 'xsrf', 'token', 'authenticity_token']
+            if not any(t in resp.text.lower() for t in tokens):
+                self.vulnerabilities.append({
+                    'name': 'Potential CSRF',
+                    'risk': 6, 'category': 'MEDIUM', 'confidence': 'Low',
+                    'details': 'No CSRF tokens found in the page source forms.',
+                    'url': self.target
+                })
+        except: pass
+
+    def check_cors(self):
+        """CORS Misconfiguration detection"""
+        try:
+            headers = {'Origin': 'https://evil-attacker.com'}
+            resp = self.session.get(self.target, headers=headers, timeout=5)
+            allow_origin = resp.headers.get('Access-Control-Allow-Origin')
+            if allow_origin == 'https://evil-attacker.com' or allow_origin == '*':
+                self.vulnerabilities.append({
+                    'name': 'CORS Misconfiguration',
+                    'risk': 4, 'category': 'MEDIUM', 'confidence': 'High',
+                    'details': f'Server trusts arbitrary origin: {allow_origin}',
+                    'url': self.target
+                })
+        except: pass
+          
     def check_idor(self):
         """Insecure Direct Object Reference detection"""
         # محاولة الوصول إلى معرفات (IDs) مختلفة للمقارنة
