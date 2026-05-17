@@ -528,7 +528,7 @@ class EliteScanner:
                 pass
 
     # Additional check methods would follow similar patterns...
-   def check_lfi_rfi(self):
+    def check_lfi_rfi(self):
         """Local/Remote File Inclusion detection"""
        payloads = ["/etc/passwd", "C:\\Windows\\win.ini", "http://evtscan.com/test.txt"]
        for payload in payloads:
