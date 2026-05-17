@@ -535,13 +535,13 @@ class EliteScanner:
            test_url = f"{self.target}?file={payload}"
            try:
               resp = self.session.get(test_url, timeout=5)
-               if any(indicator in resp.text for indicator in ["root:x:", "[extensions]", "test_rfi_successful"]):
-                   self.vulnerabilities.append({
+              if any(indicator in resp.text for indicator in ["root:x:", "[extensions]", "test_rfi_successful"]):
+                  self.vulnerabilities.append({
                       'name': 'LFI/RFI Vulnerability',
                       'risk': 9, 'category': 'HIGH', 'confidence': 'High',
                       'details': f'File inclusion detected with: {payload}', 'url': test_url
                   })
-          except: pass
+           except: pass
               
     def display_results(self):
         """Display comprehensive results"""
