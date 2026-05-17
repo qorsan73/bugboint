@@ -526,7 +526,62 @@ class EliteScanner:
                     })
             except:
                 pass
-              
+
+    def check_deserialization(self):
+        """Insecure Deserialization detection (Generic)"""
+        # payloads لثغرات Java, PHP, Python Pickle
+        payloads = [b"O:8:\"Example\":0:{}", b"cos\nsystem\n(S'ls'\ntR.", b"rO0ABXNy"]
+        headers = {'Content-Type': 'application/x-java-serialized-object'}
+        try:
+            for payload in payloads:
+                resp = self.session.post(self.target, data=payload, headers=headers, timeout=5)
+                if any(ind in resp.text.lower() for ind in ["exception", "serialized", "bin/sh"]):
+                    self.vulnerabilities.append({
+                        'name': 'Insecure Deserialization', 'risk': 9, 'category': 'HIGH',
+                        'details': 'Potential unsafe deserialization found via POST payload.',
+                        'url': self.target
+                    })
+        except: pass
+
+    def check_graphql(self):
+        """GraphQL Introspection detection"""
+        query = {"query": "{__schema{types{name}}}"}
+        try:
+            resp = self.session.post(f"{self.target}/graphql", json=query, timeout=5)
+            if "FullType" in resp.text or "__schema" in resp.text:
+                self.vulnerabilities.append({
+                    'name': 'GraphQL Introspection Enabled', 'risk': 5, 'category': 'MEDIUM',
+                    'details': 'GraphQL introspection is enabled, revealing API schema.',
+                    'url': f"{self.target}/graphql"
+                })
+        except: pass
+
+    def check_api_vulns(self):
+        """API Information Leakage check"""
+        api_endpoints = ['/api/v1/users', '/swagger.json', '/v1/config', '/actuator/env']
+        for endpoint in api_endpoints:
+            try:
+                resp = self.session.get(f"{self.target}{endpoint}", timeout=5)
+                if resp.status_code == 200 and ("{" in resp.text or "swagger" in resp.text):
+                    self.vulnerabilities.append({
+                        'name': 'Exposed API Endpoint', 'risk': 6, 'category': 'MEDIUM',
+                        'details': f'Potentially sensitive API data found at: {endpoint}',
+                        'url': f"{self.target}{endpoint}"
+                    })
+            except: pass
+
+    def check_elasticsearch(self):
+        """Elasticsearch Cluster Health Check"""
+        try:
+            resp = requests.get(f"http://{self.domain}:9200/_cluster/health", timeout=3)
+            if "cluster_name" in resp.text:
+                self.vulnerabilities.append({
+                    'name': 'Exposed Elasticsearch', 'risk': 8, 'category': 'HIGH',
+                    'details': 'Elasticsearch instance is publicly accessible on port 9200.',
+                    'url': f"http://{self.domain}:9200"
+                })
+        except: pass
+          
     def check_jwt_vulns(self):
         """JWT Security Check"""
         print(f"{Fore.YELLOW}[*] Checking for JWT vulnerabilities...")
