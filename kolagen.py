@@ -526,7 +526,76 @@ class EliteScanner:
                     })
             except:
                 pass
+              
+    def check_jwt_vulns(self):
+        """JWT Security Check"""
+        print(f"{Fore.YELLOW}[*] Checking for JWT vulnerabilities...")
+        try:
+            resp = self.session.get(self.target)
+            # البحث عن توكن في الكوكيز أو الهيدرز
+            auth_header = resp.headers.get('Authorization', '')
+            if 'Bearer' in auth_header or 'jwt' in resp.cookies.get_dict():
+                self.vulnerabilities.append({
+                    'name': 'JWT Exposed', 'risk': 7, 'category': 'MEDIUM',
+                    'details': 'JWT token found in headers/cookies. Check for "None" algorithm or weak secrets.'
+                })
+        except: pass
+          
+    def check_s3_buckets(self):
+        """AWS S3 Bucket Exposure Check"""
+        bucket_url = f"https://{self.domain}.s3.amazonaws.com"
+        try:
+            resp = requests.get(bucket_url, timeout=5)
+            if "ListBucketResult" in resp.text:
+                self.vulnerabilities.append({
+                    'name': 'Public S3 Bucket', 'risk': 8, 'category': 'HIGH',
+                    'details': f'Publicly accessible AWS S3 bucket found: {bucket_url}',
+                    'url': bucket_url
+                })
+        except: pass
+          
+    def check_subdomain_takeover(self):
+        """Subdomain Takeover detection"""
+        indicators = ["NoSuchBucket", "gh-pages at", "There isn't a GitHub Pages site here"]
+        for sub in self.subdomains:
+            try:
+                resp = requests.get(f"http://{sub['subdomain']}", timeout=5)
+                if any(idnt in resp.text for idnt in indicators):
+                    self.vulnerabilities.append({
+                        'name': 'Subdomain Takeover', 'risk': 9, 'category': 'HIGH',
+                        'details': f'Vulnerable subdomain found: {sub["subdomain"]}',
+                        'url': sub['subdomain']
+                    })
+            except: pass
+              
+    def check_redis(self):
+        """Redis Unauthenticated Access"""
+        try:
+            s = socket.socket(socket.socket.AF_INET, socket.socket.SOCK_STREAM)
+            s.settimeout(3)
+            if s.connect_ex((self.domain, 6379)) == 0:
+                s.send(b"INFO\r\n")
+                if b"redis_version" in s.recv(1024):
+                    self.vulnerabilities.append({
+                        'name': 'Redis Unauthenticated Access', 'risk': 10,
+                        'category': 'CRITICAL', 'details': 'Redis database is open without password on port 6379'
+                    })
+            s.close()
+        except: pass
 
+    def check_mongodb(self):
+        """MongoDB Unauthenticated Access"""
+        try:
+            s = socket.socket(socket.socket.AF_INET, socket.socket.SOCK_STREAM)
+            s.settimeout(3)
+            if s.connect_ex((self.domain, 27017)) == 0:
+                self.vulnerabilities.append({
+                    'name': 'MongoDB Open Port', 'risk': 8,
+                    'category': 'HIGH', 'details': 'MongoDB port 27017 is open. Check for unauthenticated access.'
+                })
+            s.close()
+        except: pass
+          
     # Additional check methods would follow similar patterns...
     def check_lfi_rfi(self):
         """Local/Remote File Inclusion detection"""
