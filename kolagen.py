@@ -542,7 +542,8 @@ class EliteScanner:
                       'details': f'File inclusion detected with: {payload}', 'url': test_url
                   })
            except: pass
-     def check_xxe(self):
+             
+    def check_xxe(self):
         """XML External Entity detection"""
         print(f"{Fore.YELLOW}[!] Scanning for XXE vulnerabilities...")
         payload = '<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM "file:///etc/passwd" >]><foo>&xxe;</foo>'
